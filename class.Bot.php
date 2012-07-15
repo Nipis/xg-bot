@@ -1,13 +1,13 @@
 <?php
 /*
-  _    _                                      _                   _                 
- | |  | |                                    | |                 | |                
- | |  | |   __ _    __ _   _ __ ___     ___  | |   __ _   _ __   | |   __ _   _   _ 
+  _    _                                      _                   _
+ | |  | |                                    | |                 | |
+ | |  | |   __ _    __ _   _ __ ___     ___  | |   __ _   _ __   | |   __ _   _   _
  | |  | |  / _` |  / _` | | '_ ` _ \   / _ \ | |  / _` | | '_ \  | |  / _` | | | | |
  | |__| | | (_| | | (_| | | | | | | | |  __/ | | | (_| | | |_) | | | | (_| | | |_| |
   \____/   \__, |  \__,_| |_| |_| |_|  \___| |_|  \__,_| | .__/  |_|  \__,_|  \__, |
             __/ |                                        | |                   __/ |
-           |___/                                         |_|                  |___/ 
+           |___/                                         |_|                  |___/
 
 
     This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- 
+
 
  *
  * @author shoghicp@gmail.com
@@ -31,24 +31,25 @@
 
 */
 
-include_once($xgp_root . 'includes/functions/IsTechnologieAccessible.' . $phpEx);
-include_once($xgp_root . 'includes/functions/GetElementPrice.' . $phpEx);
-include_once($xgp_root . 'includes/functions/HandleTechnologieBuild.' . $phpEx);
+include_once(XGP_ROOT.'includes/functions/IsTechnologieAccessible.php');
+include_once(XGP_ROOT.'includes/functions/GetElementPrice.php');
+include_once(XGP_ROOT.'includes/functions/HandleTechnologieBuild.php');
 
 function scmp( $a, $b ) {
 	 mt_srand((double)microtime()*1000000);
      return mt_rand(-1,1);
 }
-function UpdateNewBots(){
+
+function UpdateBots(){
 	global $user, $BotString;
 	$allbots = doquery("SELECT * FROM {{table}};", 'bots');
 	while($bot = mysql_fetch_array($allbots)){
 		if(($bot['last_time'] + $bot['every_time']) < time() and $user['id'] != $bot['player']){
 			$player = doquery("SELECT * FROM {{table}} WHERE `id` = '".$bot['player']."';", 'users', true);
-			$thebot = new NewBot($player, $bot);
+			$thebot = new Bot($player, $bot);
 			$thebot->Play();
 			unset($thebot);
-		}	
+		}
 	}
 	$st = fopen($xgp_root.'includes/newbot.html', "a+");
 	fwrite($st, $BotString);
@@ -57,13 +58,13 @@ function UpdateNewBots(){
 	unset($allbots);
 }
 
-class NewBot{
+class Bot{
 	protected $player;
 	protected $Bot;
 	protected $CurrentPlanet;
 	var $VERSION;
 	var $Database;
-	
+
 	function __construct($player, $bot){
 		$this->VERSION = '0.6';
 		$this->player = $player;
@@ -92,9 +93,9 @@ class NewBot{
 				if($Rand == 1 or $this->CurrentPlanet[$resource[4]] <= 5){
 					$this->BuildBuildings();
 				}else{
-					$this->BuildSpecialBuildings();	
+					$this->BuildSpecialBuildings();
 				}
-				
+
 				if($this->CurrentPlanet[$resource[31]] > 0){
 					$this->ResearchTechs();
 				}
@@ -104,8 +105,8 @@ class NewBot{
 				}else{
 					$this->BuildDefense();
 				}
-				
-				
+
+
 				if($iPlanetCount['total'] < MAX_PLAYER_PLANETS and $maxcolofleet['total'] < (MAX_PLAYER_PLANETS - $maxcolofleet['total']) and $MaxFlyingFleets < $MaxFlottes and $this->CurrentPlanet[$resource[208]] >= 1 ){
 					$this->Colonize($iPlanetCount['total']);
 				}
@@ -115,14 +116,14 @@ class NewBot{
 					}
 				}elseif($MaxFlyingFleets < $MaxFlottes){
 					$this->GetFleet();
-				}				
+				}
 				$this->Update();
 				$planetselected = false;
 				$planetwork = true;
 				$planetid = $this->CurrentPlanet['id'];
 			}else{
 				if($this->CurrentPlanet['id'] == $this->Bot['last_planet']){
-					$planetselected = true;				
+					$planetselected = true;
 				}
 			}
 		}
@@ -137,9 +138,9 @@ class NewBot{
 				if($Rand == 1 or $this->CurrentPlanet[$resource[4]] <= 5){
 					$this->BuildBuildings();
 				}else{
-					$this->BuildSpecialBuildings();	
+					$this->BuildSpecialBuildings();
 				}
-				
+
 				if($this->CurrentPlanet[$resource[31]] > 0){
 					$this->ResearchTechs();
 				}
@@ -149,7 +150,7 @@ class NewBot{
 				}else{
 					$this->BuildDefense();
 				}
-				
+
 				if($iPlanetCount['total'] < MAX_PLAYER_PLANETS and $maxcolofleet['total'] < (MAX_PLAYER_PLANETS - $maxcolofleet['total']) and $MaxFlyingFleets < $MaxFlottes and $this->CurrentPlanet[$resource[208]] >= 1 ){
 					$this->Colonize($iPlanetCount['total']);
 				}
@@ -159,9 +160,9 @@ class NewBot{
 					}
 				}elseif($MaxFlyingFleets < $MaxFlottes){
 					$this->GetFleet();
-				}				
+				}
 				$this->Update();
-				$planetid = $this->player['id_planet'];		
+				$planetid = $this->player['id_planet'];
 		}
 		$this->End($planetid);
 	}
@@ -214,7 +215,7 @@ class NewBot{
 		SetNextQueueElementOnTop ( $this->CurrentPlanet, $this->player );
 		$this->SavePlanetRecord();
 	}
-	
+
 	protected function BuildSpecialBuildings(){
 		global $BotString, $resource, $lang;
 		$CurrentQueue  = $this->CurrentPlanet['b_building_id'];
@@ -237,9 +238,9 @@ class NewBot{
 						break;
 					}
 				}
-				
+
 			}
-		
+
 		SetNextQueueElementOnTop ( $this->CurrentPlanet, $this->player );
 		$this->SavePlanetRecord();
 	}
@@ -253,7 +254,7 @@ class NewBot{
 			$QueueArray    = "";
 			$ActualCount   = 0;
 		}
-		
+
 		$StoreLevel = array(22 => 20, 23 => 20, 24 => 20);
 		foreach($StoreLevel as $Element => $Max){
 
@@ -289,7 +290,7 @@ class NewBot{
 	}
 	protected function ResearchTechs(){
 		global $resource, $BotString, $lang;
-		if ($this->CheckLabSettingsInQueue ( $this->CurrentPlanet ) == true) {		
+		if ($this->CheckLabSettingsInQueue ( $this->CurrentPlanet ) == true) {
 			$TechLevel =  array(122 => 5, 114 => 9, 118 => 11, 109 => 20, 108 => 20, 113 => 12, 115 => 8, 117 => 8, 124 => 3, 120 => 12, 106 => 12, 111 => 4, 110 => 20, 121 => 7, 199 => 1  );
 			uasort( $TechLevel, 'scmp' );
 			foreach($TechLevel as $Techno => $Max){
@@ -298,9 +299,9 @@ class NewBot{
 					$this->Research($Techno);
 						if($BotString){
 							$BotString .= '<tr><th>Investigar</th><th>'.$lang['tech'][$Techno].' al nivel '. ($this->player[$resource[$Techno]] + 1 ).'</th></tr></tr>';
-						}					
+						}
 					break;
-				}		
+				}
 			}
 		}
 	}
@@ -313,7 +314,7 @@ class NewBot{
 			$this->CurrentPlanet["b_tech_id"]   = $Techno;
 			$this->CurrentPlanet["b_tech"]      = time() + GetBuildingTime($this->player, $this->CurrentPlanet, $Techno);
 			$this->player["b_tech_planet"] = $this->CurrentPlanet["id"];
-			
+
 			$QryUpdatePlanet  = "UPDATE {{table}} SET ";
 			$QryUpdatePlanet .= "`b_tech_id` = '".   $this->CurrentPlanet['b_tech_id']   ."', ";
 			$QryUpdatePlanet .= "`b_tech` = '".      $this->CurrentPlanet['b_tech']      ."' ";
@@ -329,7 +330,7 @@ class NewBot{
 		}
 	}
 	protected function BuildFleet(){
-		global $resource;		
+		global $resource;
 			$FleetLevel =  array(212 => 300,218 => 200, 219 => 150, 215 => 150, 214 => 50, 211 => 200, 207 => 500, 209 => 500, 202 => 200,203 => 150, 204 => 345, 205 => 100, 206 => 30, 208 => 1, 210 => 20, 213 => 100);
 			uasort( $FleetLevel, 'scmp' );
 			foreach($FleetLevel as $Element => $Max){
@@ -355,11 +356,11 @@ class NewBot{
 				}
 				if(IsElementBuyable($this->player, $this->CurrentPlanet, $Element) and IsTechnologieAccessible($this->player, $this->CurrentPlanet, $Element)){
 					$this->HangarBuild($Element, $Count);
-				}		
+				}
 			}
 	}
 	protected function BuildDefense(){
-		global $resource;	
+		global $resource;
 			$DefLevel =  array(401 => 150,402 => 150, 403 => 90, 403 => 110,404 => 70,  406 => 50 /*, 407 => 1, 408 => 1 */);
 			uasort( $DefLevel, 'scmp' );
 			foreach($DefLevel as $Element => $Max){
@@ -380,7 +381,7 @@ class NewBot{
 				if( IsElementBuyable($this->player, $this->CurrentPlanet, $Element) and IsTechnologieAccessible($this->player, $this->CurrentPlanet, $Element)){
 					$this->HangarBuild($Element, $Count);
 
-				}		
+				}
 			}
 	}
 	protected function HangarBuild($Element, $Count){
@@ -491,7 +492,7 @@ class NewBot{
 				} else {
 					$Mining['deuterium']  = $this->CurrentPlanet['deuterium'];
 					$FleetStorage      = $FleetStorage - $Mining['deuterium'];
-				}				
+				}
 				$QryInsertFleet  = "INSERT INTO {{table}} SET ";
 				$QryInsertFleet .= "`fleet_owner` = '". $this->player['id'] ."', ";
 				$QryInsertFleet .= "`fleet_mission` = '4', ";
@@ -526,14 +527,14 @@ class NewBot{
 				$this->CurrentPlanet["metal"]  -= $Mining['metal'];
 				$this->CurrentPlanet["crystal"]  -= $Mining['crystal'];
 				$this->CurrentPlanet["deuterium"]  -= $consumption + $Mining['deuterium'];
-				}		
+				}
 			}
 			unset($row);
 		}
 		unset($_fleets);
 	}
 	protected function Colonize($iPlanetCount){
-		global $resource, $pricelist;	
+		global $resource, $pricelist;
 			if($iPlanetCount >= 4){
 				$planet = mt_rand(1, MAX_PLANET_IN_SYSTEM);
 				$system = mt_rand(3, MAX_SYSTEM_IN_GALAXY - 3);
@@ -541,7 +542,7 @@ class NewBot{
 			}else{
 				$planet = mt_rand(1, MAX_PLANET_IN_SYSTEM);
 				$system = mt_rand(($this->CurrentPlanet['system'] - 2), ($this->CurrentPlanet['system'] + 2));
-				$galaxy = $this->CurrentPlanet['galaxy'];			
+				$galaxy = $this->CurrentPlanet['galaxy'];
 			}
 			$Colo = doquery("SELECT count(*) AS `total` FROM {{table}} WHERE `galaxy` = '".$galaxy."' AND `system` = '".$system."' AND `planet` = '".$planet."' AND `planet_type` = '1';", 'planets', true);
 			if($Colo['total'] == 0){
@@ -565,7 +566,7 @@ class NewBot{
 					$fleet_array2     .= $Ship .",". $Count .";";
 					$FleetSubQRY     .= "`".$resource[$Ship] . "` = `" . $resource[$Ship] . "` - " . $Count . " , ";
 				}
-				
+
 				$QryInsertFleet  = "INSERT INTO {{table}} SET ";
 				$QryInsertFleet .= "`fleet_owner` = '". $this->player['id'] ."', ";
 				$QryInsertFleet .= "`fleet_mission` = '7', ";
@@ -600,7 +601,7 @@ class NewBot{
 				$this->Colonize($iPlanetCount);
 			}
 
-		
+
 	}
 	protected function GetFleet(){
 		global $resource, $reslist, $pricelist;
@@ -657,7 +658,7 @@ class NewBot{
 				} else {
 					$Mining['deuterium']  = $this->CurrentPlanet['deuterium'];
 					$FleetStorage      = $FleetStorage - $Mining['deuterium'];
-				}				
+				}
 				$QryInsertFleet  = "INSERT INTO {{table}} SET ";
 				$QryInsertFleet .= "`fleet_owner` = '". $this->player['id'] ."', ";
 				$QryInsertFleet .= "`fleet_mission` = '4', ";
@@ -691,19 +692,19 @@ class NewBot{
 				$this->CurrentPlanet["crystal"]  -= $Mining['crystal'];
 				$this->CurrentPlanet["deuterium"]  -= $consumption + $Mining['deuterium'];
 			}
-		
+
 	}
-	protected function SavePlanetRecord(){	
+	protected function SavePlanetRecord(){
 		$QryUpdatePlanet  = "UPDATE {{table}} SET ";
 		$QryUpdatePlanet .= "`b_building_id` = '". $this->CurrentPlanet['b_building_id'] ."', ";
 		$QryUpdatePlanet .= "`b_building` = '".    $this->CurrentPlanet['b_building']    ."' ";
 		$QryUpdatePlanet .= "WHERE ";
 		$QryUpdatePlanet .= "`id` = '".            $this->CurrentPlanet['id']            ."';";
-		doquery( $QryUpdatePlanet, 'planets');	
+		doquery( $QryUpdatePlanet, 'planets');
 	}
 	protected function Update(){
 		//UpdatePlanet($this->CurrentPlanet, $this->player, time(), true);
-       UpdatePlanetBatimentQueueList ( $this->CurrentPlanet, $this->player );  
+       UpdatePlanetBatimentQueueList ( $this->CurrentPlanet, $this->player );
        HandleTechnologieBuild($this->CurrentPlanet,$this->player);
 		PlanetResourceUpdate ( $this->player, $this->CurrentPlanet, time() );
 	}
@@ -711,7 +712,7 @@ class NewBot{
 		$QryUpdateUser  = "UPDATE {{table}} SET ";
 		$QryUpdateUser .= "`onlinetime` = '". time() ."', ";
 		$QryUpdateUser .= "`user_lastip` = 'BOT', ";
-		$QryUpdateUser .= "`user_agent` = 'UGamelaPlay NewBot v". $this->VERSION ."' ";
+		$QryUpdateUser .= "`user_agent` = 'Bot v". $this->VERSION ."' ";
 		$QryUpdateUser .= "WHERE ";
 		$QryUpdateUser .= "`id` = '". $this->player['id'] ."' LIMIT 1;";
 		doquery( $QryUpdateUser, 'users');
@@ -720,7 +721,7 @@ class NewBot{
 		$QryUpdateBot .= "`last_planet` = '".$planetid."' ";
 		$QryUpdateBot .= "WHERE ";
 		$QryUpdateBot .= "`id` = '". $this->Bot['id'] ."' LIMIT 1;";
-		doquery( $QryUpdateBot, 'bots'); 
+		doquery( $QryUpdateBot, 'bots');
 	}
 	protected function AddBuildingToQueue (&$CurrentPlanet, $CurrentUser, $Element, $AddMode = true)
 	{
@@ -909,15 +910,15 @@ class NewBot{
 		$ResType['deuterium'] = ($pricelist[$Element]['deuterium'] * $Count);
 
 		return $ResType;
-	}	
+	}
 }
 
 class BotDatabase{
 	private $SQLite;
-	
+
 	function __construct($Database){
 		global $xgp_root;
-		if(!file_exists($xgp_root.'includes/'.$Database.'.botdb')){		
+		if(!file_exists($xgp_root.'includes/'.$Database.'.botdb')){
 			$this->SQLite = new SQLiteDatabase($xgp_root.'includes/'.$Database.'.botdb');
 			$this->SQLite->query("CREATE TABLE [actions] (
 				[id] INTEGER  NOT NULL PRIMARY KEY,
@@ -946,7 +947,7 @@ class BotDatabase{
 			$this->SQLite = new SQLiteDatabase($xgp_root.'includes/'.$Database.'.botdb');
 		}
 	}
-	
+
 	function doquery($query, $fetch = false){
 		$result = $this->Db->query($query);
 		if($fetch){
@@ -959,4 +960,6 @@ class BotDatabase{
 
 }
 
-?>
+
+/* End of file class.Bot.php */
+/* Location: ./includes/classes/class.Bot.php */
